@@ -16,10 +16,10 @@ echo "Parsed startup command: $PARSED"
 
 JAR_PATH=$(echo "$PARSED" | grep -oP '(\S+\.jar)')
 
-if [ -n "$JAR_PATH" ] && file "$JAR_PATH" | grep -q "Java archive data (JAR)"; then
-    echo "Starting Java application..."
+if [ -n "$JAR_PATH" ] && unzip -l "$JAR_PATH" | grep -qE 'net/minecraft|org/spigotmc|com/destroystokyo/paper|cpw/mods/fml|org/bukkit'; then
+    echo "Required packages found. Starting Java application..."
     exec env ${PARSED}
 else
-    echo "Invalid file type for JAR, or file is not a Java JAR. Cancelling execution..."
+    echo "Required packages not found in the JAR. Cancelling execution..."
     exit 1
 fi
