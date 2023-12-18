@@ -14,12 +14,14 @@ java -version
 PARSED=$(echo "${STARTUP}" | sed -e 's/{{/${/g' -e 's/}}/}/g' | eval echo "$(cat -)")
 echo "Parsed startup command: $PARSED"
 
+# Extraer la ruta del archivo JAR del comando PARSED
 JAR_PATH=$(echo "$PARSED" | grep -oP '(\S+\.jar)')
 
-if [ -n "$JAR_PATH" ] && file "$JAR_PATH" | grep -q "Java archive data (JAR)"; then
-    echo "Starting Java application..."
+# Verificar si el archivo es un JAR y si contiene paquetes específicos
+if [ -n "$JAR_PATH" ] && unzip -l "$JAR_PATH" | grep -qE 'net/minecraft|org/spigotmc|com/destroystokyo/paper|cpw/mods/fml|org/bukkit'; then
+    echo "Required packages found. Starting Java application..."
     exec env ${PARSED}
 else
-    echo "Invalid file type for JAR, or file is not a Java JAR. Cancelling execution..."
+    echo "Required packages not found in the JAR. Cancelling execution..."
     exit 1
 fi
